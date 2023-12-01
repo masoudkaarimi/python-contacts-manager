@@ -1,6 +1,7 @@
 import sqlite3
 
 
+
 class ContactDatabase:
     def __init__(self, db='contacts.db'):
         self.db = db

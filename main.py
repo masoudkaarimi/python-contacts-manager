@@ -1,13 +1,17 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from db import ContactDatabase
+from sqlalchemy import or_
+
+# from db import ContactDatabase
+from db_alchemy import *
 
 
 class ContactManager:
     def __init__(self, root):
         self.root = root
-        self.db = ContactDatabase()
+        # self.db = ContactDatabase()
+        self.db = Context()
         self.root.title("Contact Manager")
         style = ttk.Style()
 
@@ -131,12 +135,20 @@ class ContactManager:
         self.load_contacts()
 
     def load_contacts(self):
+        # for item in self.tree.get_children():
+        #     self.tree.delete(item)
+        #
+        # contacts = self.db.read_records()
+        # for contact in contacts:
+        #     self.tree.insert("", "end", values=contact)
+
         for item in self.tree.get_children():
             self.tree.delete(item)
 
         contacts = self.db.read_records()
         for contact in contacts:
-            self.tree.insert("", "end", values=contact)
+            # Unpack the properties of the Contact object into a tuple
+            self.tree.insert("", "end", values=(contact.id, contact.name, contact.phone, contact.email))
 
     def add_contact(self):
         name = self.name_entry.get()
@@ -193,15 +205,25 @@ class ContactManager:
         self.phone_entry.delete(0, tk.END)
         self.email_entry.delete(0, tk.END)
 
+    # def search_contacts(self):
+    #     search_query = self.search_entry.get().lower()
+    #     for item in self.tree.get_children():
+    #         self.tree.delete(item)
+    #
+    #     contacts = self.db.read_records()
+    #     for contact in contacts:
+    #         if search_query in contact[1].lower() or search_query in contact[2] or search_query in contact[3].lower():
+    #             self.tree.insert("", "end", values=contact)
     def search_contacts(self):
         search_query = self.search_entry.get().lower()
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        contacts = self.db.read_records()
+        # Fetch the contacts from the database using the search query
+        contacts = self.db.search_record(search_query)
         for contact in contacts:
-            if search_query in contact[1].lower() or search_query in contact[2] or search_query in contact[3].lower():
-                self.tree.insert("", "end", values=contact)
+            # Insert the properties of the Contact object into the Treeview
+            self.tree.insert("", "end", values=(contact.id, contact.name, contact.phone, contact.email))
 
     def update_input_fields(self, event):
         selected_item = self.tree.selection()
